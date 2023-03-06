@@ -12,64 +12,29 @@ farmacog_NGS_FINAL <- read_excel("C:/Users/pinto/OneDrive - Universidade de Lisb
 data<- farmacog_NGS_FINAL
 ```
 
-```{r,include=FALSE}
-results<-data.frame(matrix(ncol = 4, nrow = 0)) # final data frame 
-  cols <- (c("Chr", "SNP","Coordinate","p-value"))
-  colnames(results) <- cols
-  
-  # in a dominant setting
+```{r,echo=FALSE}
 
-  for (i in 1:23){ # range of chromossomes analyzed
-    if (i==21){next}
-    sub <- subset(data, Chr==i)
-    coor.unic<-sub %>% distinct(sub$Coordinate) #subsetting for unique coordinates
-              for (j in  1:nrow(coor.unic)) {
-                      coor<-coor.unic$`sub$Coordinate`[j]
-                      SNP<-sub$SNP[j]
-                      sub2 <- subset(sub, Coordinate==coor)
-                      t<-table(sub2$Variant,sub2$Classification)
-      
-                            if (dim(t)[1]==2 & dim(t)[2]==2){
-         
-                              x<-fisher.test(t)
-                              v<-x$p.value
-                              v1<-data.frame(t(matrix(c(sub$Chr[i],SNP,coor,v))))
-                              colnames(v1) <- cols
-                              results<-rbind(results,v1) # creating a table for the coordinates and their p-values
-                                         }
-      
-        
-            }
-     
-    
-    }
-  
-```
-manhattan(results, chr = "Chr", bp="Coordinate", p="p-value", snp = "SNP",suggestiveline=1.3, logp=T, annotatePval = 0.05)
-
-
-```{r}
-results2<-data.frame(matrix(ncol = 4, nrow = 0)) #data frame final
-  cols <- (c("Chr", "SNP","Coordinate","p-value"))
+results2<-data.frame(matrix(ncol = 5, nrow = 0)) #data frame final
+  cols <- (c("Chr", "SNP","Coordinate","SNPID","p-value"))
   colnames(results2) <- cols
   
-  # in a recessive setting
-
+# in a dominat setting
   for (i in 1:23){
     if (i==21){next}
-    sub <- subset(data, Chr==i)
+    sub <- subset(FINAL2, Chr==i)
     coor.unic<-sub %>% distinct(sub$Coordinate)
               for (j in  1:nrow(coor.unic)) {
                       coor<-coor.unic$`sub$Coordinate`[j]
-                      SNP<-sub$SNP[j]
                       sub2 <- subset(sub, Coordinate==coor)
-                      t<-table(sub2$Recess,sub2$Classification)
+                      SNP<-sub2$SNP[1]
+                      SNPID<-sub2$SNPID[1]
+                      t<-table(sub2$Variant,sub2$Classification)
       
                           if (dim(t)[1]==2 & dim(t)[2]==2){
          
                             x<-fisher.test(t)
                             v<-x$p.value
-                            v1<-data.frame(t(matrix(c(sub$Chr[i],SNP,coor,v))))
+                            v1<-data.frame(t(matrix(c(sub$Chr[i],SNP,coor,SNPID,v))))
                             colnames(v1) <- cols
                             results2<-rbind(results2,v1)
                                          }
@@ -81,7 +46,85 @@ results2<-data.frame(matrix(ncol = 4, nrow = 0)) #data frame final
     }
 ```
 
-```{r}
+```{r,echo=FALSE}
 results2
+```
+```{r,echo=FALSE}
+#adjusting the p-value due to multiple comparisons
+x<-p.adjust(results2$`p-value`, method = "holm", n=length(results2$`p-value`))
+```
 
-manhattan(results2, chr = "Chr", bp="Coordinate", p="p-value", snp = "SNP",suggestiveline=1.3, logp=T, annotatePval = 0.05)
+```{r}
+y<-p.adjust(results2$`p-value`, method = "fdr", n=length(results2$`p-value`));y
+
+```
+
+```{r}
+library(qqman)
+
+results2$Chr<- as.numeric(results2$Chr)
+results2$Coordinate<- as.numeric(results2$Coordinate)
+results2$`p-value`<- as.numeric(results2$`p-value`)
+attach(sem_recessividade)
+
+
+manhattan(results2, chr = "Chr", bp="Coordinate", p="p-value", snp = "SNP",suggestiveline=1.3, logp=T, annotatePval = 0.05 )
+
+```
+
+```{r, echo=FALSE}
+results3<-data.frame(matrix(ncol = 5, nrow = 0)) #data frame final
+  cols <- (c("Chr", "SNP","Coordinate","SNPID","p-value"))
+  colnames(results3) <- cols
+  
+# in a recessive setting
+
+  for (i in 1:23){
+    if (i==21){next}
+    sub <- subset(FINAL2, Chr==i)
+    coor.unic<-sub %>% distinct(sub$Coordinate)
+              for (j in  1:nrow(coor.unic)) {
+                      coor<-coor.unic$`sub$Coordinate`[j]
+                      sub2 <- subset(sub, Coordinate==coor)
+                      SNP<-sub2$SNP[1]
+                      SNPID<-sub2$SNPID[1]
+                      t<-table(sub2$Recess,sub2$Classification)
+      
+                          if (dim(t)[1]==2 & dim(t)[2]==2){
+         
+                            x<-fisher.test(t)
+                            v<-x$p.value
+                            v1<-data.frame(t(matrix(c(sub$Chr[i],SNP,coor,SNPID,v))))
+                            colnames(v1) <- cols
+                            results3<-rbind(results3,v1)
+                                         }
+      
+        
+            }
+     
+    
+    }
+```
+
+```{r, echo=FALSE}
+
+results3
+
+```
+```{r, echo=FALSE}
+#adjusting the p-value due to multiple comparisons
+w<-p.adjust(results3$`p-value`, method = "holm")
+```
+
+```{r}
+z<-p.adjust(results3$`p-value`, method = "fdr", n=length(results3$`p-value`))
+```
+
+```{r}
+
+results3$Chr<- as.numeric(results3$Chr)
+results3$Coordinate<- as.numeric(results3$Coordinate)
+results3$`p-value`<- as.numeric(results3$`p-value`)
+
+manhattan(results3, chr = "Chr", bp="Coordinate", p="p-value", snp = "SNP",suggestiveline=1.3, logp=T, annotatePval = 0.05)
+```
