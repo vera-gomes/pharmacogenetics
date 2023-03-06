@@ -13,15 +13,16 @@ data<- farmacog_NGS_FINAL
 ```
 
 ```{r,include=FALSE}
-results<-data.frame(matrix(ncol = 4, nrow = 0)) #data frame final
+results<-data.frame(matrix(ncol = 4, nrow = 0)) # final data frame 
   cols <- (c("Chr", "SNP","Coordinate","p-value"))
   colnames(results) <- cols
   
+  # in a dominant setting
 
-  for (i in 1:23){
+  for (i in 1:23){ # range of chromossomes analyzed
     if (i==21){next}
     sub <- subset(data, Chr==i)
-    coor.unic<-sub %>% distinct(sub$Coordinate)
+    coor.unic<-sub %>% distinct(sub$Coordinate) #subsetting for unique coordinates
               for (j in  1:nrow(coor.unic)) {
                       coor<-coor.unic$`sub$Coordinate`[j]
                       SNP<-sub$SNP[j]
@@ -34,7 +35,7 @@ results<-data.frame(matrix(ncol = 4, nrow = 0)) #data frame final
                               v<-x$p.value
                               v1<-data.frame(t(matrix(c(sub$Chr[i],SNP,coor,v))))
                               colnames(v1) <- cols
-                              results<-rbind(results,v1)
+                              results<-rbind(results,v1) # creating a table for the coordinates and their p-values
                                          }
       
         
@@ -46,44 +47,12 @@ results<-data.frame(matrix(ncol = 4, nrow = 0)) #data frame final
 ```
 
 
-
-
-
-```{r}
-write.csv(results, "C:/Users/pinto/OneDrive - Universidade de Lisboa/Artigo/results3.csv", row.names=FALSE)
-```
-
-
-```{r}
-results
-```
-
-```{r}
-library(qqman)
-```
-
-```{r}
-results3 <- read_excel("C:/Users/pinto/OneDrive - Universidade de Lisboa/Artigo/results3.xlsx")
-```
-
-```{r}
-manhattan(results2,chr = "Chr", bp="BP", p="p-value" , snp = "SNP",  
- annotatePval = 0.05,suggestiveline=TRUE, genomewideline=TRUE,   col = c("cyan", "blue","blueviolet"))
-```
-```{r}
-p.adjust(results2$`p-value`, method = "holm", n=length(results2$`p-value`))
-```
-```{r}
-manhattan(results3,chr = "Chr", bp="Coordinate", p="p-value" , snp = "SNP",  
- annotatePval = 0.05,suggestiveline=TRUE, genomewideline=TRUE,   col = c("cyan", "blue","blueviolet"))
-```
-
-
 ```{r}
 results2<-data.frame(matrix(ncol = 4, nrow = 0)) #data frame final
   cols <- (c("Chr", "SNP","Coordinate","p-value"))
   colnames(results2) <- cols
   
+  # in a recessive setting
 
   for (i in 1:23){
     if (i==21){next}
@@ -114,22 +83,8 @@ results2<-data.frame(matrix(ncol = 4, nrow = 0)) #data frame final
 ```{r}
 results2
 
-```
 
-```{r}
-write.csv(results2, "C:/Users/pinto/OneDrive - Universidade de Lisboa/Artigo/results_recess.csv", row.names=FALSE)
-```
-
-```{r}
-results2 <- read_excel("C:/Users/pinto/OneDrive - Universidade de Lisboa/Artigo/results_recess.xlsx")
-
-manhattan(results2,chr = "Chr", bp="Coordinate", p="p-value" , snp = "SNP",  
+manhattan( #one of the results ,chr = "Chr", bp="Coordinate", p="p-value" , snp = "SNP",  
  annotatePval = 0.05,suggestiveline=TRUE, genomewideline=TRUE,   col = c("cyan", "blue","blueviolet"))
 
-```
-```{r}
-p.adjust(results2$`p-value`, method = "holm", n=length(results2$`p-value`))
-
-
-```
 
